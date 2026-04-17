@@ -1,0 +1,55 @@
+# -*- coding: utf-8 -*-
+{
+    'name': 'Abdoo - Product Extra Fields',
+    'version': '19.0.1.1.0',
+    'category': 'Abdoo',
+    'summary': 'Adds extra fields to the product module (filter reference, brand, engine, fuel, etc.)',
+    'description': """
+        Abdoo Module
+        ============
+        This module extends the product template with additional fields
+        related to filters, engine types, fuel types, and brands.
+
+        Features:
+        ---------
+        * Reference Marque Filtre (Char)
+        * Marque Maison (Many2one → maison.marques)
+        * Age moteur (Selection: Ancien / Nouveau)
+        * Nature carburant (Selection: Essence / Diesel)
+        * Moteur (Many2one → motors)
+        * Type Moteur (Many2one → motor.types)
+        * Marque de Filtre (Many2one → filter.marques)
+        * Type de filtre (Selection: clim / gazoil / air / essence / huile)
+    """,
+    'author': 'SN',
+    'website': 'https://www.example.com',
+    'license': 'LGPL-3',
+    'depends': [
+        'product',
+        'sale',
+        'account',
+        'website',
+        'website_sale',
+        'sale_stock',
+        'purchase',
+        'stock',
+    ],
+    'data': [
+        'security/ir.model.access.csv',
+        'views/maison_marques_views.xml',
+        'views/motors_views.xml',
+        'views/motor_types_views.xml',
+        'views/filter_marques_views.xml',
+        'views/product_template_views.xml',
+        'views/abdoo_menus.xml',
+    ],
+    'assets': {
+        'web.assets_backend': [
+            'abdoo/static/src/css/abdoo.css',
+        ],
+    },
+    'installable': True,
+    'test': ['tests/test_product_name_search.py'],
+    'application': True,
+    'auto_install': False,
+}

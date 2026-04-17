@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         Main customisation — inherits the base product form view
+         ============================================================ -->
+    <record id="product_template_view_form_abdoo" model="ir.ui.view">
+        <field name="name">product.template.view.form.abdoo</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+
+            <!-- 0. Hide sale_ok + purchase_ok checkboxes
+                    (both default to True — the div[@name='options'] contains only these two) -->
+            <xpath expr="//div[@name='options']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- 1. Show Sales Price on the left (group_general):
+                    hide the original visible fields, then move list_price label+div here.
+                    Using targeted ops (not replace) so child views can still locate
+                    type, service_tracking, product_tooltip, etc. -->
+            <!-- type field kept visible — needed to set Storable vs Consumable for stock control -->
+            <field name="combo_ids" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="service_tracking" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="product_tooltip" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <xpath expr="//group[@name='group_general']" position="inside">
+                <xpath expr="//label[@for='list_price']" position="move"/>
+                <xpath expr="//div[@name='list_price_uom']" position="move"/>
+            </xpath>
+
+            <!-- 2. Show is_published on the right (group_standard_price):
+                    hide standard_price and categ_id but keep them in the arch so
+                    child views (product.product form, account, mrp_account, etc.) can
+                    still locate standard_price_uom, categ_id, etc. -->
+            <xpath expr="//label[@for='standard_price']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//div[@name='standard_price_uom']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <field name="categ_id" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="company_id" groups="base.group_multi_company" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <xpath expr="//group[@name='group_standard_price']" position="inside">
+                <field name="is_published" widget="boolean_toggle" string="Publié sur le site"/>
+            </xpath>
+
+
+            <!-- 7. Hide the Sales tab page -->
+            <page name="sales" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </page>
+
+            <!-- Hide Sales Taxes, Purchase Taxes, Invoicing Policy -->
+            <field name="taxes_id" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="supplier_taxes_id" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="invoice_policy" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+
+            <!-- 8. Add Filtre / Moteur groups inside General Information tab -->
+            <!-- 9. Move Internal Notes to bottom of the tab -->
+            <xpath expr="//page[@name='general_information']" position="inside">
+                <xpath expr="//group[@name='internal_notes']" position="move"/>
+            </xpath>
+
+            <xpath expr="//page[@name='general_information']//group[@name='internal_notes']" position="before">
+                <group string="Moteur" class="rounded mb-2 abdoo-section-group" style="border: 1px solid gray; border-radius: 8px; margin-left: 15px; margin-right: 15px;">
+                    <group>
+                        <field name="maison" widget="many2many_tags"/>
+                        <field name="moteur"/>
+                        <field name="moteur_type"/>
+                    </group>
+                    <group>
+                        <field name="age"/>
+                        <field name="carburant"/>
+                    </group>
+                </group>
+                <group string="Filtre" class="rounded mb-2 abdoo-section-group" style="border: 1px solid gray; border-radius: 8px; margin-left: 15px; margin-right: 15px;">
+                    <group>
+                        <field name="default_code" string="Ref. Originale"/>
+                        <field name="reference_filter"/>
+                    </group>
+                    <group>
+                        <field name="filter_marque"/>
+                        <field name="filter_type"/>
+                    </group>
+                </group>
+
+            </xpath>
+
+
+        </field>
+    </record>
+
+    <!-- ============================================================
+         Separate record to hide the Barcode field.
+         The barcode is injected by product_template_only_form_view,
+         so we must inherit from that specific view to reach it.
+         ============================================================ -->
+    <record id="product_template_view_form_abdoo_barcode" model="ir.ui.view">
+        <field name="name">product.template.view.form.abdoo.barcode</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+
+            <!-- 6. Hide Barcode -->
+            <field name="barcode" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+
+            <!-- 6b. Hide default_code to show with filter section -->
+            <field name="default_code" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+
+        </field>
+    </record>
+
+    <!-- ============================================================
+         Search view — extend to search display_name (covers all composite fields)
+         ============================================================ -->
+    <record id="product_template_view_search_abdoo" model="ir.ui.view">
+        <field name="name">product.template.view.search.abdoo</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="filter_domain">['|', '|', '|', '|', ('default_code', 'ilike', self), ('product_variant_ids.default_code', 'ilike', self), ('name', 'ilike', self), ('barcode', 'ilike', self), ('display_name', 'ilike', self)]</attribute>
+            </field>
+            <xpath expr="//group/filter[@name='group_by_type']" position="before">
+                <filter name="group_by_maison" string="Maison" context="{'group_by': 'maison'}"/>
+            </xpath>
+            <xpath expr="//group/filter[@name='group_by_type']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group/filter[@name='group_by_categ_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <filter name="goods" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </filter>
+            <filter name="services" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </filter>
+            <filter name="combo" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </filter>
+            <filter name="filter_to_sell" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </filter>
+            <filter name="filter_to_purchase" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </filter>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         List view — show display_name instead of name
+         ============================================================ -->
+    <record id="product_template_view_list_abdoo" model="ir.ui.view">
+        <field name="name">product.template.view.list.abdoo</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <!-- Hide name but keep it in the arch so child views (e.g. website_sale)
+                 can still locate it via xpath; show display_name visually instead -->
+            <field name="name" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </field>
+            <field name="name" position="after">
+                <field name="display_name" string="Désignation"/>
+            </field>
+            <!-- Add Maison as the first column (before name/display_name) -->
+            <field name="is_favorite" position="after">
+                <field name="maison" string="Maison" widget="many2many_tags" optional="show"/>
+            </field>
+            <!-- Rename default_code label -->
+            <field name="default_code" position="attributes">
+                <attribute name="string">Ref. Originale</attribute>
+            </field>
+            <!-- add ref_code label -->
+            <field name="default_code" position="after">
+                <field name="reference_filter" string="Ref. Filtre" optional='show'/>
+                <field name="filter_marque" string="Marq. Filtre" optional='show'/>
+            </field>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         Hide Sales Taxes in the sellable product list view
+         (taxes_id is added by account module to this specific view)
+         ============================================================ -->
+    <record id="product_template_view_list_sellable_abdoo" model="ir.ui.view">
+        <field name="name">product.template.view.list.sellable.abdoo</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_list_view_sellable"/>
+        <field name="arch" type="xml">
+            <field name="taxes_id" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </field>
+        </field>
+    </record>
+
+
+    <!-- ============================================================
+         Make list the default view for products (override action)
+         ============================================================ -->
+    <record id="product.product_template_action" model="ir.actions.act_window">
+        <field name="context">{}</field>
+    </record>
+
+    <record id="account.product_product_action_sellable" model="ir.actions.act_window">
+        <field name="context">{}</field>
+    </record>
+
+    <record id="sale.product_template_action" model="ir.actions.act_window">
+        <field name="context">{}</field>
+        <field name="view_mode">list,kanban,form,activity</field>
+        <field name="view_ids" eval="[Command.clear(),
+            Command.create({'view_mode': 'list', 'view_id': ref('account.product_template_list_view_sellable_inherit')}),
+            Command.create({'view_mode': 'kanban'}),
+            Command.create({'view_mode': 'form'}),
+            Command.create({'view_mode': 'activity'})]"/>
+    </record>
+
+    <record id="purchase.product_normal_action_puchased" model="ir.actions.act_window">
+        <field name="view_mode">list,kanban,form,activity</field>
+        <field name="view_ids" eval="[Command.clear(),
+            Command.create({'view_mode': 'list', 'view_id': ref('account.product_template_list_view_purchasable_inherit')}),
+            Command.create({'view_mode': 'kanban'}),
+            Command.create({'view_mode': 'form'}),
+            Command.create({'view_mode': 'activity'})]"/>
+    </record>
+
+</odoo>

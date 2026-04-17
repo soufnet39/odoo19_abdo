@@ -1,0 +1,12 @@
+.abdoo-section-group .o_horizontal_separator {
+    background-color: #f0f0f0;
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-top: 0 !important;
+    color: blueviolet;
+}
+
+.abdoo-section-group .o_wrap_label,
+.abdoo-section-group label {
+    color: chocolate;
+}

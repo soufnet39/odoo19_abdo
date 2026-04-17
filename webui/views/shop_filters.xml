@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Disable the price range filter on the shop page entirely.
+        Setting opt_wsale_filter_price to False cascades to every price-filter
+        check in the template (sidebar, mobile offcanvas, "clear filters" badge).
+    -->
+    <template
+        id="webui_disable_price_filter"
+        name="Disable Price Filter"
+        inherit_id="website_sale.products"
+        active="True"
+    >
+        <xpath expr="//t[@t-set='opt_wsale_filter_price']" position="replace">
+            <t t-set="opt_wsale_filter_price" t-value="False"/>
+        </xpath>
+    </template>
+
+    <!--
+        Inject our custom product filters into the website_sale sidebar.
+        The `products_attributes_filters` div is already used by website_sale
+        for variant/attribute filters; we append our abdoo-specific filters
+        right after that block.
+    -->
+    <template
+        id="webui_shop_custom_filters"
+        name="Abdoo Custom Filters (sidebar)"
+        inherit_id="website_sale.products"
+        active="True"
+    >
+        <!-- Insert after the standard attributes/price filter block, still
+             inside the aside rail, by targeting the sidebar's inner wrapper. -->
+        <xpath
+            expr="//div[contains(@class,'o_wsale_products_grid_before_rail')]"
+            position="inside"
+        >
+                <!-- ── Clear custom filters link ─────────────────────────── -->
+                <t t-if="webui_clear_url">
+                    <div class="py-2 border-bottom">
+                        <a t-att-href="webui_clear_url"
+                           class="btn btn-link d-flex align-items-center py-1 text-danger text-decoration-none">
+                            <small class="mx-auto"><b>Clear Custom Filters</b></small>
+                            <i class="oi oi-close" role="presentation"/>
+                        </a>
+                    </div>
+                </t>
+
+                <!-- ── Helper macro: renders one checkbox filter group ────── -->
+                <t t-set="_webui_section_class" t-value="'pt-3 pb-2 border-top'"/>
+
+                <!-- Filter Type -->
+                <t t-if="webui_filter_type_options">
+                    <div t-attf-class="#{_webui_section_class}">
+                        <b class="d-block mb-2">Type de filtre</b>
+                        <t t-foreach="webui_filter_type_options" t-as="opt">
+                            <div class="form-check ms-1 mb-1">
+                                <a t-att-href="webui_toggle_url('filter_type', opt[0])"
+                                   t-attf-class="d-flex align-items-center gap-2 text-decoration-none
+                                       #{'fw-bold text-primary' if opt[0] in (webui_filter_params.get('filter_type') or []) else 'text-reset'}">
+                                    <i t-attf-class="fa fa-fw
+                                        #{'fa-check-square-o' if opt[0] in (webui_filter_params.get('filter_type') or []) else 'fa-square-o'}"/>
+                                    <span t-esc="opt[1]"/>
+                                </a>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- Age moteur -->
+                <t t-if="webui_age_options">
+                    <div t-attf-class="#{_webui_section_class}">
+                        <b class="d-block mb-2">Age moteur</b>
+                        <t t-foreach="webui_age_options" t-as="opt">
+                            <div class="form-check ms-1 mb-1">
+                                <a t-att-href="webui_toggle_url('age', opt[0])"
+                                   t-attf-class="d-flex align-items-center gap-2 text-decoration-none
+                                       #{'fw-bold text-primary' if opt[0] in (webui_filter_params.get('age') or []) else 'text-reset'}">
+                                    <i t-attf-class="fa fa-fw
+                                        #{'fa-check-square-o' if opt[0] in (webui_filter_params.get('age') or []) else 'fa-square-o'}"/>
+                                    <span t-esc="opt[1]"/>
+                                </a>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- Nature carburant -->
+                <t t-if="webui_carburant_options">
+                    <div t-attf-class="#{_webui_section_class}">
+                        <b class="d-block mb-2">Nature carburant</b>
+                        <t t-foreach="webui_carburant_options" t-as="opt">
+                            <div class="form-check ms-1 mb-1">
+                                <a t-att-href="webui_toggle_url('carburant', opt[0])"
+                                   t-attf-class="d-flex align-items-center gap-2 text-decoration-none
+                                       #{'fw-bold text-primary' if opt[0] in (webui_filter_params.get('carburant') or []) else 'text-reset'}">
+                                    <i t-attf-class="fa fa-fw
+                                        #{'fa-check-square-o' if opt[0] in (webui_filter_params.get('carburant') or []) else 'fa-square-o'}"/>
+                                    <span t-esc="opt[1]"/>
+                                </a>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- Marque de Filtre -->
+                <t t-if="webui_filter_marque_options">
+                    <div t-attf-class="#{_webui_section_class}">
+                        <b class="d-block mb-2">Marque de Filtre</b>
+                        <t t-foreach="webui_filter_marque_options" t-as="rec">
+                            <div class="form-check ms-1 mb-1">
+                                <a t-att-href="webui_toggle_url('filter_marque', rec.id)"
+                                   t-attf-class="d-flex align-items-center gap-2 text-decoration-none
+                                       #{'fw-bold text-primary' if rec.id in (webui_filter_params.get('filter_marque') or []) else 'text-reset'}">
+                                    <i t-attf-class="fa fa-fw
+                                        #{'fa-check-square-o' if rec.id in (webui_filter_params.get('filter_marque') or []) else 'fa-square-o'}"/>
+                                    <span t-field="rec.name"/>
+                                </a>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- Maison (marque maison) -->
+                <t t-if="webui_maison_options">
+                    <div t-attf-class="#{_webui_section_class}">
+                        <b class="d-block mb-2">Maison</b>
+                        <t t-foreach="webui_maison_options" t-as="rec">
+                            <div class="form-check ms-1 mb-1">
+                                <a t-att-href="webui_toggle_url('maison', rec.id)"
+                                   t-attf-class="d-flex align-items-center gap-2 text-decoration-none
+                                       #{'fw-bold text-primary' if rec.id in (webui_filter_params.get('maison') or []) else 'text-reset'}">
+                                    <i t-attf-class="fa fa-fw
+                                        #{'fa-check-square-o' if rec.id in (webui_filter_params.get('maison') or []) else 'fa-square-o'}"/>
+                                    <span t-field="rec.name"/>
+                                </a>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- Moteur -->
+                <t t-if="webui_moteur_options">
+                    <div t-attf-class="#{_webui_section_class}">
+                        <b class="d-block mb-2">Moteur</b>
+                        <t t-foreach="webui_moteur_options" t-as="rec">
+                            <div class="form-check ms-1 mb-1">
+                                <a t-att-href="webui_toggle_url('moteur', rec.id)"
+                                   t-attf-class="d-flex align-items-center gap-2 text-decoration-none
+                                       #{'fw-bold text-primary' if rec.id in (webui_filter_params.get('moteur') or []) else 'text-reset'}">
+                                    <i t-attf-class="fa fa-fw
+                                        #{'fa-check-square-o' if rec.id in (webui_filter_params.get('moteur') or []) else 'fa-square-o'}"/>
+                                    <span t-field="rec.name"/>
+                                </a>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- Type Moteur -->
+                <t t-if="webui_moteur_type_options">
+                    <div t-attf-class="#{_webui_section_class}">
+                        <b class="d-block mb-2">Type Moteur</b>
+                        <t t-foreach="webui_moteur_type_options" t-as="rec">
+                            <div class="form-check ms-1 mb-1">
+                                <a t-att-href="webui_toggle_url('moteur_type', rec.id)"
+                                   t-attf-class="d-flex align-items-center gap-2 text-decoration-none
+                                       #{'fw-bold text-primary' if rec.id in (webui_filter_params.get('moteur_type') or []) else 'text-reset'}">
+                                    <i t-attf-class="fa fa-fw
+                                        #{'fa-check-square-o' if rec.id in (webui_filter_params.get('moteur_type') or []) else 'fa-square-o'}"/>
+                                    <span t-field="rec.name"/>
+                                </a>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+        </xpath>
+    </template>
+
+</odoo>
