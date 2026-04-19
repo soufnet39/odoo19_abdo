@@ -63,6 +63,14 @@ class ProductTemplate(models.Model):
     type = fields.Selection(default='consu')             # Goods (storable) by default
     invoice_policy = fields.Selection(default='order')  # Ordered Quantities
 
+    @api.model
+    def default_get(self, fields_list):
+        defaults = super().default_get(fields_list)
+        # Set is_storable=True by default when Inventory (stock) module is installed
+        if 'is_storable' in self._fields:
+            defaults['is_storable'] = True
+        return defaults
+
     # -------------------------------------------------------
     # Custom display_name
     # -------------------------------------------------------
@@ -73,7 +81,7 @@ class ProductTemplate(models.Model):
         recursive=True,
     )
 
-    @api.depends('name', 'filter_marque', 'filter_type', 'age', 'carburant', 'moteur', 'moteur_type')
+    @api.depends('name', 'reference_filter', 'filter_marque', 'filter_type', 'age', 'carburant', 'moteur', 'moteur_type')
     def _compute_display_name(self):
         filter_type_labels = dict(self._fields['filter_type'].selection)
         age_labels = dict(self._fields['age'].selection)
@@ -81,6 +89,8 @@ class ProductTemplate(models.Model):
 
         for rec in self:
             parts = [rec.name or '']
+            if rec.reference_filter:
+                parts.append(rec.reference_filter)
             if rec.filter_marque:
                 parts.append(rec.filter_marque.name)
             if rec.filter_type:
