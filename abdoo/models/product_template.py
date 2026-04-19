@@ -81,16 +81,14 @@ class ProductTemplate(models.Model):
         recursive=True,
     )
 
-    @api.depends('name', 'reference_filter', 'filter_marque', 'filter_type', 'age', 'carburant', 'moteur', 'moteur_type')
+    @api.depends('name', 'filter_marque', 'filter_type', 'age', 'carburant', 'moteur', 'moteur_type', 'default_code')
     def _compute_display_name(self):
         filter_type_labels = dict(self._fields['filter_type'].selection)
         age_labels = dict(self._fields['age'].selection)
         carburant_labels = dict(self._fields['carburant'].selection)
 
         for rec in self:
-            parts = [rec.name or '']
-            if rec.reference_filter:
-                parts.append(rec.reference_filter)
+            parts = [rec.name or '']           
             if rec.filter_marque:
                 parts.append(rec.filter_marque.name)
             if rec.filter_type:
@@ -103,6 +101,8 @@ class ProductTemplate(models.Model):
                 parts.append(rec.moteur.name)
             if rec.moteur_type:
                 parts.append(rec.moteur_type.name)
+            if rec.default_code:
+                parts.append(rec.default_code)
             rec.display_name = ' , '.join(filter(None, parts))
 
     def unlink(self):
