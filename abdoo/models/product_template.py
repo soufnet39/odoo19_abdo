@@ -15,6 +15,13 @@ class ProductTemplate(models.Model):
         string='Maison',
     )
 
+    zone = fields.Many2one(
+        'zones',
+        string='Zone',
+        related='maison.zone',
+        store=True,
+    )
+
     age = fields.Selection(
         selection=[
             ('A', 'Ancien'),
@@ -116,17 +123,32 @@ class ProductTemplate(models.Model):
         return super().unlink()
 
     def _search_display_name(self, operator, value):
-        """Extend display_name search to cover all fields that compose it."""
-        domain = Domain(super()._search_display_name(operator, value))
+        """Extend display_name search to cover all fields that compose it.
+
+        When the search phrase contains spaces, each word is required to appear
+        in display_name (AND logic). Example: "1.5 dci" → display_name contains
+        "1.5" AND display_name contains "dci".
+        """
         positive_ops = ('ilike', 'like', '=', '=ilike', '=like')
+
+        # Multi-word AND search: split on spaces and require every chunk to match
+        if value and operator in positive_ops and isinstance(value, str) and ' ' in value:
+            chunks = value.split()
+            combined = Domain.TRUE
+            for chunk in chunks:
+                combined = combined & Domain(self._search_display_name(operator, chunk))
+            return combined
+
+        domain = Domain(super()._search_display_name(operator, value))
         if value and operator in positive_ops:
             # Char: direct search
             domain = domain | Domain('reference_filter', operator, value)
 
-            # Many2one: search by related record name
+            # Many2one / Many2many: search by related record name
             domain = domain | Domain('filter_marque.display_name', operator, value) \
                             | Domain('moteur.display_name', operator, value) \
-                            | Domain('moteur_type.display_name', operator, value)
+                            | Domain('moteur_type.display_name', operator, value) \
+                            | Domain('maison.zone.name', operator, value)
 
             # Selection: match against human-readable labels
             val_lower = value.lower()
@@ -158,8 +180,18 @@ class ProductProduct(models.Model):
         if name and operator in positive_ops:
             existing_ids = {r[0] for r in results}
             base_domain = Domain(domain or Domain.TRUE)
+
+            # Build AND domain across space-separated chunks
+            if isinstance(name, str) and ' ' in name:
+                chunks = name.split()
+                name_domain = Domain.TRUE
+                for chunk in chunks:
+                    name_domain = name_domain & Domain('display_name', operator, chunk)
+            else:
+                name_domain = Domain('display_name', operator, name)
+
             extra = self.search_fetch(
-                base_domain & Domain('display_name', operator, name),
+                base_domain & name_domain,
                 ['display_name'],
                 limit=limit,
             )
@@ -168,15 +200,29 @@ class ProductProduct(models.Model):
         return results
 
     def _search_display_name(self, operator, value):
-        """Mirror ProductTemplate._search_display_name for product.product searches."""
-        domain = Domain(super()._search_display_name(operator, value))
+        """Mirror ProductTemplate._search_display_name for product.product searches.
+
+        When the search phrase contains spaces, each word is required to appear
+        in display_name (AND logic).
+        """
         positive_ops = ('ilike', 'like', '=', '=ilike', '=like')
+
+        # Multi-word AND search: split on spaces and require every chunk to match
+        if value and operator in positive_ops and isinstance(value, str) and ' ' in value:
+            chunks = value.split()
+            combined = Domain.TRUE
+            for chunk in chunks:
+                combined = combined & Domain(self._search_display_name(operator, chunk))
+            return combined
+
+        domain = Domain(super()._search_display_name(operator, value))
         if value and operator in positive_ops:
             domain = domain | Domain('product_tmpl_id.reference_filter', operator, value)
 
             domain = domain | Domain('filter_marque.display_name', operator, value) \
                             | Domain('moteur.display_name', operator, value) \
-                            | Domain('moteur_type.display_name', operator, value)
+                            | Domain('moteur_type.display_name', operator, value) \
+                            | Domain('product_tmpl_id.maison.zone.name', operator, value)
 
             val_lower = value.lower()
             for sel_field in ('filter_type', 'age', 'carburant'):

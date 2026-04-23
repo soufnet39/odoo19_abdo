@@ -15,6 +15,12 @@ class MaisonMarques(models.Model):
         required=True,
     )
 
+    zone = fields.Many2one(
+        comodel_name='zones',
+        string='Zone',
+        ondelete='set null',
+    )
+
     active = fields.Boolean(
         string='Actif',
         default=True,

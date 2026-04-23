@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Sale Order: add # column to print template -->
+    <template id="report_saleorder_document_rank" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//th[@name='th_description']" position="before">
+            <th name="th_line_number" class="text-end text-nowrap" style="width:40px">#</th>
+        </xpath>
+        <xpath expr="//tr[@name='tr_product']/td[@name='td_product_name']" position="before">
+            <td name="td_line_number" class="text-end text-nowrap">
+                <span t-out="line.line_number"/>
+            </td>
+        </xpath>
+    </template>
+
+    <!-- Purchase Order: add # column to print template -->
+    <template id="report_purchaseorder_document_rank" inherit_id="purchase.report_purchaseorder_document">
+        <xpath expr="//th[@name='th_description']" position="before">
+            <th name="th_line_number" class="text-end text-nowrap" style="width:40px">#</th>
+        </xpath>
+        <xpath expr="//td[@id='product']" position="before">
+            <td name="td_line_number" class="text-end text-nowrap">
+                <span t-out="line.line_number"/>
+            </td>
+        </xpath>
+    </template>
+
+</odoo>

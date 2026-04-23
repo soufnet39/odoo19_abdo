@@ -1,4 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_zones_user,access_zones_user,model_zones,base.group_user,1,1,1,0
+access_zones_manager,access_zones_manager,model_zones,base.group_system,1,1,1,1
 access_maison_marques_user,access_maison_marques_user,model_maison_marques,base.group_user,1,1,1,0
 access_maison_marques_manager,access_maison_marques_manager,model_maison_marques,base.group_system,1,1,1,1
 access_motors_user,access_motors_user,model_motors,base.group_user,1,1,1,0

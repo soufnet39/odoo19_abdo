@@ -18,6 +18,14 @@
 
     <!-- Configuration items -->
     <menuitem
+        id="menu_abdoo_zones"
+        name="Zones"
+        parent="menu_abdoo_config"
+        action="action_zones"
+        sequence="5"
+    />
+
+    <menuitem
         id="menu_abdoo_maison_marques"
         name="Marques Maison"
         parent="menu_abdoo_config"

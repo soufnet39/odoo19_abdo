@@ -8,6 +8,7 @@
         <field name="arch" type="xml">
             <list string="Marques Maison">
                 <field name="name"/>
+                <field name="zone"/>
                 <field name="active"/>
             </list>
         </field>
@@ -22,6 +23,7 @@
                 <sheet>
                     <group>
                         <field name="name"/>
+                        <field name="zone"/>
                         <field name="active"/>
                     </group>
                 </sheet>

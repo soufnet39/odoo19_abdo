@@ -195,6 +195,7 @@
             </field>
             <!-- add ref_code label -->
             <field name="default_code" position="after">
+                <field name="zone" string="Zone" optional='show'/>
                 <field name="reference_filter" string="Ref. Filtre" optional='show'/>
                 <field name="filter_marque" string="Marq. Filtre" optional='show'/>
             </field>

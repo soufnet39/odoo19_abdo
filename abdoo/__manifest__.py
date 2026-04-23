@@ -36,12 +36,15 @@
     ],
     'data': [
         'security/ir.model.access.csv',
+        'views/zones_views.xml',
         'views/maison_marques_views.xml',
         'views/motors_views.xml',
         'views/motor_types_views.xml',
         'views/filter_marques_views.xml',
         'views/product_template_views.xml',
+        'views/order_line_rank_views.xml',
         'views/abdoo_menus.xml',
+        'report/order_line_rank_report.xml',
     ],
     'assets': {
         'web.assets_backend': [
