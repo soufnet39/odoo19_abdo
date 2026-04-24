@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 
+from odoo import http
 from odoo.addons.website_sale.controllers.main import WebsiteSale
 from odoo.fields import Domain
 from odoo.http import request
@@ -113,3 +114,49 @@ class WebsiteSaleWebUI(WebsiteSale):
         except Exception:
             _logger.exception("webui: error building shop filter values")
         return result
+
+    @http.route('/shop/cart/order-request', type='http', auth='public', methods=['POST'], website=True, csrf=True)
+    def cart_order_request(self, name='', phone='', email='', notes='', **kwargs):
+        """Receive the Order Now form, send an email with cart contents, redirect."""
+        name = name.strip()
+        phone = phone.strip()
+        email = email.strip()
+        notes = notes.strip()
+
+        if not name or not phone:
+            return request.redirect('/shop/cart?order_error=1')
+
+        order = request.cart
+        if not order or not order.website_order_line:
+            return request.redirect('/shop/cart')
+
+        # Build HTML list of cart items (no prices — consistent with site policy)
+        lines_html = ''.join(
+            f'<li>{line.product_id.display_name} &times; {int(line.product_uom_qty)}</li>'
+            for line in order.website_order_line
+        )
+
+        body_html = f"""
+            <p><strong>Nom :</strong> {name}</p>
+            <p><strong>Téléphone :</strong> {phone}</p>
+            {'<p><strong>Email :</strong> ' + email + '</p>' if email else ''}
+            <h4 style="margin-top:16px;">Produits demandés :</h4>
+            <ul>{lines_html}</ul>
+            {'<p><strong>Notes :</strong> ' + notes + '</p>' if notes else ''}
+        """
+
+        company = request.env.company
+        recipient = company.email
+        if not recipient:
+            _logger.warning("webui order-request: company has no email configured")
+            return request.redirect('/shop/cart?order_sent=1')
+
+        request.env['mail.mail'].sudo().create({
+            'subject': f'Nouvelle demande de commande — {name}',
+            'email_from': company.email,
+            'reply_to': email or company.email,
+            'email_to': recipient,
+            'body_html': body_html,
+        }).send()
+
+        return request.redirect('/shop/cart?order_sent=1')

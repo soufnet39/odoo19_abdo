@@ -2,6 +2,22 @@
 <odoo>
 
     <!--
+        Show product.display_name instead of product.name on the /shop grid.
+        display_name is the custom computed field that joins name, filter_marque,
+        filter_type, age, carburant, moteur, moteur_type, and default_code.
+    -->
+    <template
+        id="webui_shop_product_display_name"
+        name="Shop: display_name on product tile"
+        inherit_id="website_sale.products_item"
+        active="True"
+    >
+        <xpath expr="//span[@t-field='product.name']" position="replace">
+            <span t-field="product.display_name"/>
+        </xpath>
+    </template>
+
+    <!--
         Disable the price range filter on the shop page entirely.
         Setting opt_wsale_filter_price to False cascades to every price-filter
         check in the template (sidebar, mobile offcanvas, "clear filters" badge).
@@ -175,6 +191,125 @@
                     </div>
                 </t>
 
+        </xpath>
+    </template>
+
+    <!--
+        Replace the standard navigation buttons in the cart sidebar with:
+          • "Order Now"       – opens the contact form modal
+          • "Continue Shopping" – returns to /shop
+        The original buttons (Proceed to Checkout, Continue shopping link) are gone.
+    -->
+    <template
+        id="webui_cart_sidebar_buttons"
+        name="Cart sidebar: Order Now + Continue Shopping"
+        inherit_id="website_sale.shorter_cart_summary"
+        active="True"
+    >
+        <xpath expr="//t[@t-call='website_sale.navigation_buttons']" position="replace">
+            <div class="d-flex flex-column gap-2 mt-3"
+                 t-if="website_sale_order and website_sale_order.website_order_line">
+                <button type="button"
+                        class="btn btn-primary w-100"
+                        data-bs-toggle="modal"
+                        data-bs-target="#webui_order_modal">
+                    <i class="fa fa-paper-plane me-2"/>
+                    Commander
+                </button>
+                <a href="/shop" class="btn btn-outline-secondary w-100">
+                    <i class="fa fa-angle-left me-2"/>
+                    Continuer les achats
+                </a>
+            </div>
+        </xpath>
+    </template>
+
+    <!--
+        Inject the Order Request modal + success/error flash into the cart page.
+        The modal collects contact info (name, phone, optional email + notes)
+        and POSTs to /shop/cart/order-request.
+    -->
+    <template
+        id="webui_cart_order_modal"
+        name="Cart: Order Request modal"
+        inherit_id="website_sale.cart"
+        active="True"
+    >
+        <xpath expr="//div[@id='shop_cart']" position="before">
+            <!-- Success / error alerts -->
+            <div t-if="request.params.get('order_sent')"
+                 class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+                <strong>Demande envoyée !</strong>
+                Votre demande de commande a bien été transmise. Nous vous contacterons rapidement.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"/>
+            </div>
+            <div t-if="request.params.get('order_error')"
+                 class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                <strong>Erreur :</strong>
+                Veuillez renseigner votre nom et votre numéro de téléphone.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"/>
+            </div>
+
+            <!-- Order Request Modal -->
+            <div class="modal fade" id="webui_order_modal" tabindex="-1"
+                 aria-labelledby="webui_order_modal_label" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="webui_order_modal_label">
+                                <i class="fa fa-paper-plane me-2 text-primary"/>
+                                Votre demande de commande
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"/>
+                        </div>
+                        <form method="post" action="/shop/cart/order-request">
+                            <input type="hidden" name="csrf_token"
+                                   t-att-value="request.csrf_token()"/>
+                            <div class="modal-body d-flex flex-column gap-3">
+                                <div>
+                                    <label class="form-label fw-semibold" for="webui_order_name">
+                                        Nom complet <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" id="webui_order_name" name="name"
+                                           class="form-control" placeholder="Votre nom"
+                                           required="required"/>
+                                </div>
+                                <div>
+                                    <label class="form-label fw-semibold" for="webui_order_phone">
+                                        Téléphone <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="tel" id="webui_order_phone" name="phone"
+                                           class="form-control" placeholder="Ex : 0555 123 456"
+                                           required="required"/>
+                                </div>
+                                <div>
+                                    <label class="form-label fw-semibold" for="webui_order_email">
+                                        Email <span class="text-muted small">(optionnel)</span>
+                                    </label>
+                                    <input type="email" id="webui_order_email" name="email"
+                                           class="form-control" placeholder="votre@email.com"/>
+                                </div>
+                                <div>
+                                    <label class="form-label fw-semibold" for="webui_order_notes">
+                                        Notes <span class="text-muted small">(optionnel)</span>
+                                    </label>
+                                    <textarea id="webui_order_notes" name="notes"
+                                              class="form-control" rows="3"
+                                              placeholder="Précisions sur votre commande…"/>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary"
+                                        data-bs-dismiss="modal">Annuler</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa fa-paper-plane me-2"/>
+                                    Envoyer la demande
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </xpath>
     </template>
 

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!--
+        Remove the price column from the "added to cart" popup toast.
+        The original div renders getFormattedPrice(line) on the right side.
+    -->
+    <t t-name="website_sale.cartLine"
+       t-inherit="website_sale.cartLine"
+       t-inherit-mode="extension">
+        <xpath expr="//div[@t-out='getFormattedPrice(line)']" position="replace"/>
+    </t>
+
+</templates>

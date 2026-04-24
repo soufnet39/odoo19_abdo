@@ -1,3 +1,43 @@
 #o_wsale_categories_filmstrip {
     display: none !important;
 }
+
+/* ── Hide all product prices for website visitors ──────────────────────────── */
+
+/* Shop grid tiles: price block inside each product card */
+.product_price {
+    display: none !important;
+}
+
+/* Product detail page: the entire price section wrapper */
+.o_wsale_product_details_content_section_price {
+    display: none !important;
+}
+
+/* Variant attribute badges that show extra price (+X.XX) */
+.variant_price_extra,
+.sign_badge_price_extra {
+    display: none !important;
+}
+
+/* Pricelist selector dropdown in the header */
+.o_pricelist_dropdown {
+    display: none !important;
+}
+
+/* ── Hide prices on /shop/cart ─────────────────────────────────────────────── */
+
+/* Per-line price (desktop column and mobile inline) */
+[name="website_sale_cart_line_price"] {
+    display: none !important;
+}
+
+/* Sidebar summary: per-product price column */
+[name="website_sale_cart_summary_line_price"] {
+    display: none !important;
+}
+
+/* Sidebar summary: subtotal / taxes / grand-total table (keeps buttons visible) */
+.o_wsale_shorter_cart_summary .o_cart_total {
+    display: none !important;
+}

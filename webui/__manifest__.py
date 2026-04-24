@@ -17,6 +17,7 @@
     'assets': {
         'web.assets_frontend': [
             'webui/static/src/css/webui.css',
+            'webui/static/src/xml/cart_notification_patch.xml',
         ],
     },
     'installable': True,
