@@ -43,6 +43,7 @@
         'views/filter_marques_views.xml',
         'views/product_template_views.xml',
         'views/order_line_rank_views.xml',
+        'views/purchase_views.xml',
         'views/abdoo_menus.xml',
         'report/order_line_rank_report.xml',
     ],
