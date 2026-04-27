@@ -18,7 +18,11 @@
         <!-- Quantity: integer display, no UoM label, custom header -->
         <xpath expr="//td[@name='td_product_quantity']" position="before">
             <td name="td_default_code" class="text-end text-nowrap">
-                <span t-field="line.product_id.default_code"/>
+                <t t-set="code_parts" t-value="(line.product_id.default_code or '').split(',')"/>
+                <t t-foreach="code_parts" t-as="code_part">
+                    <br t-if="not code_part_first"/>
+                    <t t-out="code_part.replace(' ', '')"/>
+                </t>
             </td>
             <td name="td_marque" class="text-end text-nowrap">
                 <span t-field="line.product_id.filter_marque"/>
