@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Abdoo - Product Extra Fields',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'category': 'Abdoo',
     'summary': 'Adds extra fields to the product module (filter reference, brand, engine, fuel, etc.)',
     'description': """
@@ -45,6 +45,7 @@
         'views/order_line_rank_views.xml',
         'views/purchase_views.xml',
         'views/abdoo_menus.xml',
+        'views/listing.xml',
         'report/order_line_rank_report.xml',
     ],
     'assets': {

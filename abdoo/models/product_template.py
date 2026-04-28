@@ -112,6 +112,13 @@ class ProductTemplate(models.Model):
                 parts.append(rec.default_code)
             rec.display_name = ' , '.join(filter(None, parts))
 
+    def action_print_listing(self, visible_columns=None):
+        default = ['maison', 'display_name', 'default_code', 'zone',
+                   'reference_filter', 'filter_marque', 'list_price']
+        return self.env.ref('abdoo.action_report_product_listing').report_action(
+            self, data={'visible_columns': visible_columns or default}
+        )
+
     def unlink(self):
         # Clear delivery carrier references to avoid FK constraint on product_id
         products = self.mapped('product_variant_ids')
