@@ -6,10 +6,10 @@
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
             <!-- Hide taxes column in order lines list -->
-            <field name="tax_ids" position="attributes">
+            <!-- <field name="tax_ids" position="attributes">
                 <attribute name="column_invisible">True</attribute>
                 <attribute name="invisible">True</attribute>
-            </field>
+            </field> -->
             <!-- Replace tax totals widget with just the total amount -->
             <field name="tax_totals" position="replace">
                 <field name="amount_total" string="Total" widget="monetary" nolabel="0" readonly="1" class="oe_subtotal_footer_separator fw-bolder"/>
