@@ -63,10 +63,10 @@
 
             <!-- Hide Sales Taxes, Purchase Taxes, Invoicing Policy -->
             <field name="taxes_id" position="attributes">
-                <attribute name="invisible">1</attribute>
+                <attribute name="invisible">0</attribute>
             </field>
             <field name="supplier_taxes_id" position="attributes">
-                <attribute name="invisible">1</attribute>
+                <attribute name="invisible">0</attribute>
             </field>
             <field name="invoice_policy" position="attributes">
                 <attribute name="invisible">1</attribute>
@@ -212,7 +212,7 @@
         <field name="inherit_id" ref="product.product_template_list_view_sellable"/>
         <field name="arch" type="xml">
             <field name="taxes_id" position="attributes">
-                <attribute name="column_invisible">1</attribute>
+                <attribute name="column_invisible">0</attribute>
             </field>
         </field>
     </record>

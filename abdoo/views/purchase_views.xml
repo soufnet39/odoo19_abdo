@@ -24,7 +24,7 @@
         <field name="arch" type="xml">
             <!-- Hide taxes column in order lines list -->
             <xpath expr="//list//field[@name='tax_ids']" position="attributes">
-                <attribute name="column_invisible">True</attribute>
+                <attribute name="column_invisible">False</attribute>
                 <attribute name="optional">hide</attribute>
             </xpath>
             <!-- Hide the discount/buttons bar below order lines -->
