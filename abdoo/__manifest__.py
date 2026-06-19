@@ -47,6 +47,7 @@
         'views/abdoo_menus.xml',
         'views/listing.xml',
         'report/order_line_rank_report.xml',
+        'report/sale_order_abdoo_report.xml',
     ],
     'assets': {
         'web.assets_backend': [
